@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AniMaL</title>
+<title>AniMaL – Feed the AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -498,34 +498,34 @@
 <div class="app">
 
   <div class="game-header">
-    <div class="game-title">AniMaL - FeedForward!</div>
-    <div class="game-subtitle">Lehr mich, welches Tier welches Futter mag!</div>
+    <div class="game-title">AniMaL</div>
+    <div class="game-subtitle">Teach me what each animal likes to eat!</div>
   </div>
 
   <!-- MODUS-BUTTONS -->
   <div class="mode-bar">
-    <button class="mode-btn active" id="btn-train">🎓 Trainingsmodus</button>
-    <button class="mode-btn"        id="btn-test">🧪 Erprobungsmodus</button>
+    <button class="mode-btn active" id="btn-train">🎓 Training Mode</button>
+    <button class="mode-btn"        id="btn-test">🧪 Test Mode</button>
   </div>
 
   <!-- PHASE BANNER -->
   <div class="phase-banner train-done" id="phase-banner">
-    🎉 Training abgeschlossen! Die KI hat etwas gelernt. Teste sie jetzt!
+    🎉 Training complete! The AI has learned something. Now put it to the test!
   </div>
 
   <!-- STATS -->
   <div class="stats-row">
     <div class="stat-chip">
       <span class="stat-val green"  id="stat-correct">0</span>
-      <span class="stat-lbl">Richtig</span>
+      <span class="stat-lbl">Correct</span>
     </div>
     <div class="stat-chip">
       <span class="stat-val orange" id="stat-wrong">0</span>
-      <span class="stat-lbl">Falsch</span>
+      <span class="stat-lbl">Wrong</span>
     </div>
     <div class="stat-chip">
       <span class="stat-val purple" id="stat-rounds">0</span>
-      <span class="stat-lbl">Runden</span>
+      <span class="stat-lbl">Rounds</span>
     </div>
   </div>
 
@@ -539,16 +539,16 @@
     <div class="scene">
       <div class="animal-box">
         <span class="animal-emoji" id="animal-emoji">🐶</span>
-        <div class="animal-name"  id="animal-name">Hund</div>
+        <div class="animal-name"  id="animal-name">Dog</div>
       </div>
       <div class="speech-bubble" id="speech-bubble">
-        <span class="bubble-text" id="bubble-text">Ich bin hungrig! Was esse ich?</span>
+        <span class="bubble-text" id="bubble-text">I'm hungry! What do I eat?</span>
       </div>
     </div>
 
     <!-- AUFGABE -->
     <div class="task-label" id="task-label">
-      Was frisst dieses Tier?
+      What does this animal eat?
       <span class="mode-tag" id="mode-tag">Training</span>
     </div>
 
@@ -563,12 +563,12 @@
   <!-- GEWICHTE -->
   <div class="weights-panel">
     <div class="weights-header">
-      <div class="weights-title">🧠 Was die KI gelernt hat</div>
-      <div class="weights-hint">Balken = wie stark die KI ein Futter für dieses Tier einschätzt</div>
+      <div class="weights-title">🧠 What the AI has learned</div>
+      <div class="weights-hint">Bar = how strongly the AI associates a food with this animal</div>
     </div>
     <div class="weights-tabs" id="weights-tabs"></div>
     <div class="weight-rows"  id="weight-rows"></div>
-    <div class="explain-box"  id="explain-box">Fütter ein Tier, um zu sehen wie die KI lernt!</div>
+    <div class="explain-box"  id="explain-box">Feed an animal to see how the AI learns!</div>
   </div>
 
 </div>
@@ -576,23 +576,23 @@
 <script>
 (function(){
   const ANIMALS = [
-    { emoji:'🐶', name:'Hund',        correct:['Knochen'] },
-    { emoji:'🐱', name:'Katze',       correct:['Fisch','Maus'] },
-    { emoji:'🦉', name:'Eule',        correct:['Maus'] },
-    { emoji:'🐰', name:'Kaninchen',   correct:['Karotte'] },
-    { emoji:'🐢', name:'Schildkröte', correct:['Salat'] },
-    { emoji:'🐹', name:'Hamster',     correct:['Maiskörner'] },
+    { emoji:'🐶', name:'Dog',        correct:['Bone'] },
+    { emoji:'🐱', name:'Cat',       correct:['Fish','Mouse'] },
+    { emoji:'🦉', name:'Owl',        correct:['Mouse'] },
+    { emoji:'🐰', name:'Rabbit',   correct:['Carrot'] },
+    { emoji:'🐢', name:'Turtle', correct:['Lettuce'] },
+    { emoji:'🐹', name:'Hamster',     correct:['Corn'] },
   ];
 
   const FOODS = [
-    { key:'Knochen',    emoji:'🦴' },
-    { key:'Fisch',      emoji:'🐟' },
-    { key:'Maus',       emoji:'🐁' },
-    { key:'Karotte',    emoji:'🥕' },
-    { key:'Salat',      emoji:'🥬' },
-    { key:'Maiskörner', emoji:'🌽' },
-    { key:'Wurm',       emoji:'🪱' },
-    { key:'Körner',     emoji:'🌾' },
+    { key:'Bone',    emoji:'🦴' },
+    { key:'Fish',      emoji:'🐟' },
+    { key:'Mouse',       emoji:'🐁' },
+    { key:'Carrot',    emoji:'🥕' },
+    { key:'Lettuce',      emoji:'🥬' },
+    { key:'Corn', emoji:'🌽' },
+    { key:'Worm',       emoji:'🪱' },
+    { key:'Seeds',     emoji:'🌾' },
   ];
 
   const FOOD_MAP = Object.fromEntries(FOODS.map(f => [f.key, f.emoji]));
@@ -729,16 +729,16 @@
       if (available.length === 0) {
         $('phase-banner').classList.add('show');
       }
-      // Auch nach dem Banner weitertrainieren — alle Tiere bleiben verfügbar
+      // Keep training after banner — all animals remain available
       const pool = available.length > 0 ? available : ANIMALS;
       currentAnimal = pool[Math.floor(Math.random() * pool.length)];
-      $('task-label').innerHTML = `Zeig der KI: Was frisst <strong>${currentAnimal.name}</strong>? <span class="mode-tag" id="mode-tag">Training</span>`;
+      $('task-label').innerHTML = `Show the AI: What does <strong>${currentAnimal.name}</strong> eat? <span class="mode-tag" id="mode-tag">Training</span>`;
       showKiGuess();
     } else {
       testPhase = 'user';
       currentAnimal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-      $('task-label').innerHTML = `Was glaubst <strong>du</strong> – was frisst ${currentAnimal.emoji} ${currentAnimal.name}? <span class="mode-tag test" id="mode-tag">Erprobung</span>`;
-      setBubble('Ich bin hungrig! Was esse ich? 🤔');
+      $('task-label').innerHTML = `What do <strong>you</strong> think – what does ${currentAnimal.emoji} ${currentAnimal.name} eat? <span class="mode-tag test" id="mode-tag">Test</span>`;
+      setBubble("I'm hungry! What do I eat? 🤔");
     }
 
     $('animal-emoji').textContent = currentAnimal.emoji;
@@ -754,7 +754,7 @@
 
   function showKiGuess() {
     const guess = getBestFood(currentAnimal.name);
-    setBubble(`Mein aktueller Tipp: <span class="ki-food">${FOOD_MAP[guess]}</span> ${guess} – zeig mir was richtig ist!`);
+    setBubble(`My current guess: <span class="ki-food">${FOOD_MAP[guess]}</span> ${guess} – show me what\'s right!`);
     highlightFood(guess, 'ki-pick');
   }
 
@@ -778,12 +778,12 @@
     }
     updateProgressDots(currentAnimal.name);
 
-    // Im Trainingsmodus IST der Nutzer der Lehrer.
-    // Was der Nutzer zeigt = was die KI lernen soll.
-    // Das Tier bewertet nicht — es bekommt Futter und freut sich immer.
+    // In training mode the user IS the teacher.
+    // What the user shows = what the AI should learn.
+    // The animal never judges — it gets food and is always happy.
     const snapshot = { ...weights[currentAnimal.name] };
 
-    // KI lernt: gezeigtes Futter stark stärken, alle anderen schwächen
+    // AI learns: strongly boost shown food, weaken all others
     FOODS.forEach(f => {
       if (f.key === foodKey) {
         weights[currentAnimal.name][f.key] += 0.18;
@@ -795,32 +795,32 @@
 
     prevWeights[currentAnimal.name] = snapshot;
 
-    // Highlight: was gezeigt wurde
+    // Highlight: what was shown
     clearFoodHighlights();
     highlightFood(foodKey, 'correct-pick');
 
-    // Tier freut sich immer — es bekommt ja Futter!
+    // Animal always happy — it gets food!
     const animalEl = $('animal-emoji');
     animalEl.classList.remove('happy', 'sad');
     void animalEl.offsetWidth;
     animalEl.classList.add('happy');
 
-    // Sprechblase: Tier nimmt das Futter dankbar an
-    setBubble(`<span class="correct-tag">Danke! 😊</span> Du zeigst mir: ${FOOD_MAP[foodKey]} ${foodKey}. Die KI lernt!`);
+    // Speech bubble: animal accepts the food gratefully
+    setBubble(`<span class="correct-tag">Thanks! 😊</span> You showed me: ${FOOD_MAP[foodKey]} ${foodKey}. The AI is learning!`);
 
-    // Erklärung: Was hat die KI gelernt?
+    // Explanation: what did the AI just learn?
     activeWeightTab = currentAnimal.name;
     renderWeightTab(foodKey);
 
     const deltaVal = (weights[currentAnimal.name][foodKey] - snapshot[foodKey] * 100).toFixed(0);
     const newTop   = getBestFood(currentAnimal.name);
     setExplain(
-      `Du hast der KI gezeigt: <span class="hl-green">${FOOD_MAP[foodKey]} ${foodKey}</span>. ` +
-      `Die KI stärkt diesen Balken um <span class="hl-green">+18%</span> und schwächt alle anderen. ` +
-      `Aktuell tippt sie auf: <span class="hl-purple">${FOOD_MAP[newTop]} ${newTop}</span>. ` +
+      `You showed the AI: <span class="hl-green">${FOOD_MAP[foodKey]} ${foodKey}</span>. ` +
+      `The AI boosts this bar by <span class="hl-green">+18%</span> and weakens all others. ` +
+      `Current best guess: <span class="hl-purple">${FOOD_MAP[newTop]} ${newTop}</span>. ` +
       (newTop === foodKey
-        ? `<span class="hl-green">Sie hat es gelernt! ✓</span>`
-        : `Noch ein paar Runden – sie lernt es!`)
+        ? `<span class="hl-green">It learned it! ✓</span>`
+        : `A few more rounds and it will get it!`)
     );
 
     setTimeout(() => pickAnimal(), 2000);
@@ -848,28 +848,28 @@
     void animalEl.offsetWidth;
     animalEl.classList.add(kiRight ? 'happy' : 'sad');
 
-    // Sprechblase KI-Antwort
+    // Speech bubble: AI response
     setBubble(
       kiRight
-        ? `<span class="correct-tag">Ich wusste es! ✓</span> ${FOOD_MAP[kiGuess]} ${kiGuess}!`
-        : `<span class="wrong-tag">Ich lag falsch… ✗</span> Ich dachte ${FOOD_MAP[kiGuess]}, aber richtig ist ${currentAnimal.correct.map(c=>FOOD_MAP[c]).join('/')}!`
+        ? `<span class="correct-tag">I knew it! ✓</span> ${FOOD_MAP[kiGuess]} ${kiGuess}!`
+        : `<span class="wrong-tag">I was wrong… ✗</span> I thought ${FOOD_MAP[kiGuess]}, but the right answer is ${currentAnimal.correct.map(c=>FOOD_MAP[c]).join('/')}!`
     );
 
-    // Ergebnis-Chips
+    // Result chips
     const resultRow = $('test-result-row');
     resultRow.style.display = 'flex';
     resultRow.innerHTML = `
-      <div class="result-chip user">Du: ${FOOD_MAP[userChoice]} ${userChoice}</div>
-      <div class="result-chip ${kiRight?'correct':'wrong'}">KI: ${FOOD_MAP[kiGuess]} ${kiGuess} ${kiRight?'✓':'✗'}</div>
-      <div class="result-chip correct">Richtig: ${currentAnimal.correct.map(c=>FOOD_MAP[c]+' '+c).join(' / ')}</div>
+      <div class="result-chip user">You: ${FOOD_MAP[userChoice]} ${userChoice}</div>
+      <div class="result-chip ${kiRight?'correct':'wrong'}">AI: ${FOOD_MAP[kiGuess]} ${kiGuess} ${kiRight?'✓':'✗'}</div>
+      <div class="result-chip correct">Correct: ${currentAnimal.correct.map(c=>FOOD_MAP[c]+' '+c).join(' / ')}</div>
     `;
 
     setExplain(
-      `<span class="hl-purple">Erprobungsmodus:</span> Du hast ${FOOD_MAP[userChoice]} gewählt, ` +
-      `die KI tippte auf ${FOOD_MAP[kiGuess]}. ` +
+      `<span class="hl-purple">Test Mode:</span> You chose ${FOOD_MAP[userChoice]}, ` +
+      `the AI guessed ${FOOD_MAP[kiGuess]}. ` +
       (kiRight
-        ? `<span class="hl-green">Die KI hat richtig gelernt!</span> Sie erkennt jetzt zuverlässig, was ${currentAnimal.name} mag.`
-        : `<span class="hl-orange">Die KI lag noch falsch.</span> Sie braucht mehr Training für ${currentAnimal.name}.`)
+        ? `<span class="hl-green">The AI has learned correctly!</span> It now reliably knows what ${currentAnimal.name} likes.`
+        : `<span class="hl-orange">The AI was still wrong.</span> It needs more training for ${currentAnimal.name}.)`)
     );
 
     setTimeout(() => pickAnimal(), 2800);
