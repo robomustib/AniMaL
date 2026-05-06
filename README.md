@@ -37,16 +37,6 @@ A live weight panel shows the shifting confidence scores for each animal–food 
 - Zero dependencies — single HTML file, no framework, no build step
 ---
  
-## Usage
- 
-### Standalone
-Open `animal.html` directly in any modern browser. No server required.
- 
-### WordPress / CMS
-Paste the contents of `animal-wordpress.html` into any HTML block in the Gutenberg editor or a plugin like Shortcoder. The tool is fully scoped — all CSS classes carry the `gbnn-` prefix and no styles leak into the surrounding theme.
- 
----
- 
 ## Files
  
 | File | Description |
