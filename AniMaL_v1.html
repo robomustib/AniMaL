@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tierfütterung durch maschinelles Lernen</title>
+  <style>
+    /* Allgemeine Stile für das Spiel */
+    .tf-container {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f0f8ff;
+      margin: 20px auto;
+      max-width: 600px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .tf-title {
+      color: #333;
+      font-size: 24px;
+    }
+    .tf-description {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Spezifische Stile für das Spiel */
+    .tf-animal {
+      font-size: 80px;
+      margin: 80px 0;
+    }
+    .tf-foods {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+      flex-wrap: wrap; /* Zeilenumbruch bei kleinen Bildschirmen */
+    }
+    .tf-food {
+      font-size: 50px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      width: 20%; /* Flexibles Layout für Futterarten */
+      margin: 5px;
+    }
+    .tf-food:hover {
+      transform: scale(1.2);
+    }
+    .tf-mode-buttons {
+      margin-top: 30px;
+    }
+    .tf-button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 45%; /* Buttons passen sich an die Breite an */
+    }
+    .tf-feedback {
+      font-size: 20px;
+      margin-top: 20px;
+      height: 30px;
+    }
+    .tf-highlight {
+      border: 2px solid blue;
+      border-radius: 10px;
+      padding: 5px;
+    }
+    .tf-weights-matrix {
+      font-size: 14px;
+      margin-top: 20px;
+      color: #333;
+    }
+
+    /* Responsive Design für mobile Geräte */
+    @media (max-width: 768px) {
+      .tf-container {
+        padding: 10px;
+        margin: 10px auto;
+        max-width: 100%;
+      }
+      .tf-title {
+        font-size: 20px;
+      }
+      .tf-description {
+        font-size: 14px;
+      }
+      .tf-animal {
+        font-size: 60px;
+        margin: 10px 0;
+      }
+      .tf-food {
+        font-size: 40px;
+        width: 30%; /* Mehr Platz für kleine Bildschirme */
+      }
+      .tf-button {
+        font-size: 14px;
+        width: 48%; /* Buttons kleiner machen */
+      }
+      .tf-feedback {
+        font-size: 16px;
+      }
+      .tf-weights-matrix {
+        font-size: 12px;
+      }
+    }
+
+    /* Responsive Design für sehr kleine Geräte */
+    @media (max-width: 480px) {
+      .tf-animal {
+        font-size: 50px;
+      }
+      .tf-food {
+        font-size: 30px;
+        width: 45%; /* Noch mehr Platz für Futterarten */
+      }
+      .tf-button {
+        font-size: 12px;
+        width: 100%; /* Vollständige Breite für Buttons */
+        margin: 5px 0;
+      }
+      .tf-feedback {
+        font-size: 14px;
+      }
+      .tf-weights-matrix {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Container für das Spiel -->
+  <div class="tf-container">
+    <h1 class="tf-title">Hilf mir, die Tiere zu füttern!</h1>
+    <p class="tf-description"><strong>Modus:</strong> <span id="tf-mode">Trainingsmodus</span></p>
+
+    <div class="tf-animal" id="tf-animal">🐶</div>
+
+    <div class="tf-foods" id="tf-foodContainer">
+      <div class="tf-food" data-food="Knochen">🦴</div>
+      <div class="tf-food" data-food="Fisch">🐟</div>
+      <div class="tf-food" data-food="Maus">🐁</div>
+      <div class="tf-food" data-food="Karotte">🥕</div>
+      <div class="tf-food" data-food="Salat">🥬</div>
+      <div class="tf-food" data-food="Maiskörner">🌽</div>
+      <div class="tf-food" data-food="Wurm">🪱</div>
+    </div>
+
+    <div class="tf-mode-buttons">
+      <button class="tf-button" id="tf-trainMode">Trainingsmodus</button>
+      <button class="tf-button" id="tf-testMode">Erprobungsmodus</button>
+    </div>
+
+    <div class="tf-feedback" id="tf-feedback"></div>
+    <div class="tf-weights-matrix" id="tf-weightsMatrix"></div>
+  </div>
+
+  <script>
+    // Daten der Tiere und Futterarten
+    const animals = [
+      { emoji: '🐶', name: 'Hund', correctFoods: ['Knochen'] },
+      { emoji: '🐱', name: 'Katze', correctFoods: ['Fisch', 'Maus'] },
+      { emoji: '🦉', name: 'Eule', correctFoods: ['Maus'] },
+      { emoji: '🐰', name: 'Kaninchen', correctFoods: ['Karotte'] },
+      { emoji: '🐢', name: 'Schildkröte', correctFoods: ['Salat'] },
+      { emoji: '🐹', name: 'Hamster', correctFoods: ['Maiskörner'] },
+    ];
+
+    const foodEmoji = {
+      Knochen: '🦴',
+      Fisch: '🐟',
+      Maus: '🐁',
+      Karotte: '🥕',
+      Salat: '🥬',
+      Maiskörner: '🌽',
+      Wurm: '🪱',
+    };
+
+    let mode = 'train'; // train or test
+    let weights = {}; // Gewichtungsmatrix
+    let currentAnimal = null;
+
+    // Initialisiere Gewichtungsmatrix mit nahezu gleichen Werten
+    animals.forEach(a => {
+      weights[a.name] = {};
+      Object.keys(foodEmoji).forEach(f => {
+        weights[a.name][f] = 0.5 + (Math.random() * 0.1 - 0.05); // Basiswert 0.5 ± kleine Variation
+      });
+    });
+
+    // Zähler für das Training pro Tier
+    const trainingCounts = {};
+    animals.forEach(a => {
+      trainingCounts[a.name] = 0; // Startwert für jedes Tier
+    });
+
+    const animalEl = document.getElementById('tf-animal');
+    const feedbackEl = document.getElementById('tf-feedback');
+    const weightsMatrixEl = document.getElementById('tf-weightsMatrix');
+    const modeEl = document.getElementById('tf-mode');
+
+    function pickAnimal() {
+      if (mode === 'train') {
+        // Wähle ein Tier, das noch nicht 3 Mal trainiert wurde
+        const availableAnimals = animals.filter(a => trainingCounts[a.name] < 3);
+        if (availableAnimals.length === 0) {
+          // Alle Tiere wurden 3 Mal trainiert -> Wechsel in den Erprobungsmodus
+          mode = 'test';
+          modeEl.textContent = 'Erprobungsmodus';
+          feedbackEl.textContent = 'Training abgeschlossen! Zeit für den Erprobungsmodus.';
+          updateWeightsMatrixDisplay();
+
+          // Sofortige Vermutung der KI im Erprobungsmodus
+          setTimeout(() => {
+            pickAnimal();
+          }, 1000);
+          return;
+        }
+        currentAnimal = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
+      } else {
+        // Im Erprobungsmodus wird ein zufälliges Tier gewählt
+        currentAnimal = animals[Math.floor(Math.random() * animals.length)];
+      }
+
+      animalEl.textContent = currentAnimal.emoji;
+
+      if (mode === 'train') {
+        const guess = guessFood(currentAnimal.name);
+        highlightKIChoice(guess);
+        feedbackEl.innerHTML = `🤖 Ich denke: ${foodEmoji[guess]}`;
+      } else {
+        const guess = guessFood(currentAnimal.name);
+        feedbackEl.innerHTML = `🤖 Ich denke: ${foodEmoji[guess]} 🤔`;
+      }
+
+      updateWeightsMatrixDisplay();
+    }
+
+    function guessFood(animalName) {
+      const options = weights[animalName];
+      let best = Object.entries(options).sort((a, b) => b[1] - a[1])[0];
+      return best[0]; // Rückgabe des Namens des Futters
+    }
+
+    function highlightKIChoice(food) {
+      const foodElements = document.querySelectorAll('.tf-food');
+      foodElements.forEach(el => {
+        el.classList.remove('tf-highlight');
+        if (el.dataset.food === food) {
+          el.classList.add('tf-highlight');
+        }
+      });
+    }
+
+    function giveFeedback(food) {
+      const isCorrect = currentAnimal.correctFoods.includes(food);
+
+      if (mode === 'train') {
+        feedbackEl.textContent = '🙏 Danke für deine Hilfe!';
+        // Trainingszähler erhöhen
+        trainingCounts[currentAnimal.name]++;
+        train(currentAnimal.name, food, isCorrect);
+
+        // Überprüfen, ob das Training für das aktuelle Tier abgeschlossen ist
+        if (trainingCounts[currentAnimal.name] >= 3) {
+          feedbackEl.textContent += ' Training für dieses Tier abgeschlossen!';
+        }
+      } else {
+        const kiGuess = guessFood(currentAnimal.name);
+        const msg = food === kiGuess ? '👍 Super danke!' : '🫣 Mist, ich lag falsch!';
+        feedbackEl.textContent = msg;
+      }
+
+      setTimeout(() => {
+        clearHighlight();
+        pickAnimal();
+      }, 1500);
+    }
+
+    function train(animal, food, correct) {
+      Object.keys(foodEmoji).forEach(f => {
+        if (f === food) {
+          weights[animal][f] += correct ? 0.1 : -0.1;
+        } else {
+          weights[animal][f] -= correct ? 0.05 : -0.01;
+        }
+        // Begrenzung der Gewichte
+        weights[animal][f] = Math.max(0, Math.min(1, weights[animal][f]));
+      });
+    }
+
+    function clearHighlight() {
+      const foodElements = document.querySelectorAll('.tf-food');
+      foodElements.forEach(el => el.classList.remove('tf-highlight'));
+    }
+
+    function updateWeightsMatrixDisplay() {
+      let matrixHTML = '<strong>Gewichtungsmatrix:</strong><br>';
+      Object.entries(weights).forEach(([animal, foods]) => {
+        matrixHTML += `${animal}: `;
+        matrixHTML += Object.entries(foods)
+          .map(([food, weight]) => `${foodEmoji[food]}: ${weight.toFixed(2)}`)
+          .join(', ');
+        matrixHTML += '<br>';
+      });
+      weightsMatrixEl.innerHTML = matrixHTML;
+    }
+
+    // Event Listeners
+    document.querySelectorAll('.tf-food').forEach(f => {
+      f.addEventListener('click', () => {
+        const foodName = f.dataset.food;
+        giveFeedback(foodName);
+      });
+    });
+
+    document.getElementById('tf-trainMode').addEventListener('click', () => {
+      mode = 'train';
+      modeEl.textContent = 'Trainingsmodus';
+      pickAnimal();
+    });
+
+    document.getElementById('tf-testMode').addEventListener('click', () => {
+      mode = 'test';
+      modeEl.textContent = 'Erprobungsmodus';
+      pickAnimal();
+    });
+
+    // Start
+    pickAnimal();
+  </script>
+</body>
+</html>
