@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniMaL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky:    #e8f4fd;
+    --grass:  #d4edda;
+    --sun:    #ffd60a;
+    --orange: #ff6b35;
+    --teal:   #2ec4b6;
+    --pink:   #ff6b9d;
+    --purple: #9b5de5;
+    --navy:   #1a1a2e;
+    --card:   #ffffff;
+    --border: #e2e8f0;
+    --text:   #2d3748;
+    --muted:  #718096;
+    --radius: 16px;
+    --font:   'Nunito', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: linear-gradient(160deg, #e8f4fd 0%, #fef9e7 50%, #e8f8f0 100%);
+    min-height: 100vh;
+    padding: 16px;
+    color: var(--text);
+  }
+
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .game-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .game-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--navy);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .game-subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  /* MODE BAR */
+  .mode-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 8px;
+    border: 2px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--muted);
+  }
+  .mode-btn.active {
+    background: var(--navy);
+    color: white;
+    box-shadow: 0 3px 10px rgba(26,26,46,0.25);
+  }
+  .mode-btn:not(.active):hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  /* PROGRESS ROW */
+  .progress-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .animal-progress {
+    flex: 1;
+    min-width: 90px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 10px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .animal-progress.trained {
+    border-color: var(--teal);
+    background: #f0fdfb;
+  }
+  .animal-progress .ap-emoji { font-size: 1.4rem; display: block; }
+  .animal-progress .ap-dots {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 4px;
+  }
+  .ap-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+  .ap-dot.filled { background: var(--teal); }
+  .ap-dot.filled.correct { background: var(--teal); }
+  .ap-dot.filled.wrong   { background: var(--orange); }
+
+  /* MAIN CARD */
+  .main-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+
+  /* SCENE */
+  .scene {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, #fef9e7, #e8f4fd);
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    position: relative;
+    min-height: 130px;
+  }
+
+  .animal-box {
+    text-align: center;
+  }
+  .animal-emoji {
+    font-size: 5rem;
+    display: block;
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    transition: transform 0.3s;
+  }
+  .animal-emoji.happy {
+    animation: bounce 0.5s ease;
+  }
+  .animal-emoji.sad {
+    animation: shake 0.5s ease;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    40%      { transform: translateY(-16px); }
+    70%      { transform: translateY(-8px); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%     { transform: translateX(-8px); }
+    75%     { transform: translateX(8px); }
+  }
+
+  .animal-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .speech-bubble {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 16px;
+    max-width: 220px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    position: relative;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: var(--border);
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: white;
+  }
+  .bubble-text { color: var(--text); line-height: 1.4; }
+  .bubble-text .ki-food { font-size: 1.4rem; }
+  .bubble-text .correct-tag { color: var(--teal);   font-weight: 900; }
+  .bubble-text .wrong-tag   { color: var(--orange); font-weight: 900; }
+
+  /* TASK LABEL */
+  .task-label {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 14px;
+  }
+  .task-label .mode-tag {
+    display: inline-block;
+    background: var(--purple);
+    color: white;
+    font-size: 0.72rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .task-label .mode-tag.test { background: var(--orange); }
+
+  /* FOOD GRID */
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 480px) {
+    .food-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .food-btn {
+    background: var(--sky);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s;
+    font-family: var(--font);
+  }
+  .food-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    border-color: var(--teal);
+    background: white;
+  }
+  .food-btn.ki-pick {
+    border-color: var(--purple);
+    background: #f5f0ff;
+    box-shadow: 0 0 0 3px rgba(155,93,229,0.2);
+  }
+  .food-btn.correct-pick {
+    border-color: var(--teal);
+    background: #f0fdfb;
+    box-shadow: 0 0 0 3px rgba(46,196,182,0.25);
+  }
+  .food-btn.wrong-pick {
+    border-color: var(--orange);
+    background: #fff5f0;
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.2);
+  }
+  .food-btn.disabled { pointer-events: none; opacity: 0.5; }
+
+  .food-emoji { font-size: 2rem; display: block; }
+  .food-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); margin-top: 2px; display: block; }
+
+  /* WEIGHTS PANEL */
+  .weights-panel {
+    background: #fafbff;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .weights-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .weights-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--navy);
+  }
+  .weights-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .weights-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .wtab {
+    padding: 4px 10px;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    font-family: var(--font);
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    background: white;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .wtab.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+
+  .weight-rows { display: grid; gap: 7px; }
+  .weight-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wr-food { font-size: 1.1rem; width: 28px; text-align: center; flex-shrink: 0; }
+  .wr-bar-bg {
+    flex: 1;
+    height: 18px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .wr-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+  }
+  .wr-bar-fill.high   { background: linear-gradient(90deg, #2ec4b6, #1a9e95); }
+  .wr-bar-fill.medium { background: linear-gradient(90deg, #ffd60a, #e6b800); }
+  .wr-bar-fill.low    { background: linear-gradient(90deg, #ccc, #aaa); }
+  .wr-bar-fill.changed {
+    animation: pulse-bar 0.6s ease;
+  }
+  @keyframes pulse-bar {
+    0%   { filter: brightness(1); }
+    40%  { filter: brightness(1.4); }
+    100% { filter: brightness(1); }
+  }
+  .wr-pct {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--muted);
+    width: 34px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .wr-delta {
+    font-size: 0.7rem;
+    font-weight: 800;
+    width: 42px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .wr-delta.up   { color: var(--teal); }
+  .wr-delta.down { color: var(--orange); }
+
+  /* EXPLAIN BOX */
+  .explain-box {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+    min-height: 48px;
+    margin-top: 12px;
+  }
+  .explain-box .hl-green  { color: var(--teal);   font-weight: 900; }
+  .explain-box .hl-orange { color: var(--orange); font-weight: 900; }
+  .explain-box .hl-purple { color: var(--purple); font-weight: 900; }
+
+  /* TEST MODE special */
+  .test-prompt {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 14px;
+    padding: 10px 16px;
+    background: #fff8ee;
+    border: 2px solid #fcd34d;
+    border-radius: 12px;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-chip {
+    flex: 1;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 1.4rem;
+    font-weight: 900;
+    display: block;
+    line-height: 1;
+  }
+  .stat-val.green  { color: var(--teal); }
+  .stat-val.orange { color: var(--orange); }
+  .stat-val.purple { color: var(--purple); }
+  .stat-lbl {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* PHASE BANNER */
+  .phase-banner {
+    text-align: center;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-weight: 800;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .phase-banner.show { display: block; }
+  .phase-banner.train-done {
+    background: #f0fdfb;
+    border: 2px solid var(--teal);
+    color: var(--teal);
+  }
+
+  /* TEST RESULT */
+  .test-result-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .result-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .result-chip.correct { background: #f0fdfb; color: var(--teal);   border: 2px solid var(--teal); }
+  .result-chip.wrong   { background: #fff5f0; color: var(--orange); border: 2px solid var(--orange); }
+  .result-chip.user    { background: #f5f0ff; color: var(--purple); border: 2px solid var(--purple); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="game-header">
+    <div class="game-title">AniMaL - FeedForward!</div>
+    <div class="game-subtitle">Lehr mich, welches Tier welches Futter mag!</div>
+  </div>
+
+  <!-- MODUS-BUTTONS -->
+  <div class="mode-bar">
+    <button class="mode-btn active" id="btn-train">🎓 Trainingsmodus</button>
+    <button class="mode-btn"        id="btn-test">🧪 Erprobungsmodus</button>
+  </div>
+
+  <!-- PHASE BANNER -->
+  <div class="phase-banner train-done" id="phase-banner">
+    🎉 Training abgeschlossen! Die KI hat etwas gelernt. Teste sie jetzt!
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-chip">
+      <span class="stat-val green"  id="stat-correct">0</span>
+      <span class="stat-lbl">Richtig</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val orange" id="stat-wrong">0</span>
+      <span class="stat-lbl">Falsch</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val purple" id="stat-rounds">0</span>
+      <span class="stat-lbl">Runden</span>
+    </div>
+  </div>
+
+  <!-- FORTSCHRITT PRO TIER -->
+  <div class="progress-row" id="progress-row"></div>
+
+  <!-- HAUPTKARTE -->
+  <div class="main-card">
+
+    <!-- SZENE -->
+    <div class="scene">
+      <div class="animal-box">
+        <span class="animal-emoji" id="animal-emoji">🐶</span>
+        <div class="animal-name"  id="animal-name">Hund</div>
+      </div>
+      <div class="speech-bubble" id="speech-bubble">
+        <span class="bubble-text" id="bubble-text">Ich bin hungrig! Was esse ich?</span>
+      </div>
+    </div>
+
+    <!-- AUFGABE -->
+    <div class="task-label" id="task-label">
+      Was frisst dieses Tier?
+      <span class="mode-tag" id="mode-tag">Training</span>
+    </div>
+
+    <!-- FUTTER -->
+    <div class="food-grid" id="food-grid"></div>
+
+    <!-- TEST-ERGEBNIS (versteckt bis Auswahl) -->
+    <div class="test-result-row" id="test-result-row" style="display:none;"></div>
+
+  </div>
+
+  <!-- GEWICHTE -->
+  <div class="weights-panel">
+    <div class="weights-header">
+      <div class="weights-title">🧠 Was die KI gelernt hat</div>
+      <div class="weights-hint">Balken = wie stark die KI ein Futter für dieses Tier einschätzt</div>
+    </div>
+    <div class="weights-tabs" id="weights-tabs"></div>
+    <div class="weight-rows"  id="weight-rows"></div>
+    <div class="explain-box"  id="explain-box">Fütter ein Tier, um zu sehen wie die KI lernt!</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const ANIMALS = [
+    { emoji:'🐶', name:'Hund',        correct:['Knochen'] },
+    { emoji:'🐱', name:'Katze',       correct:['Fisch','Maus'] },
+    { emoji:'🦉', name:'Eule',        correct:['Maus'] },
+    { emoji:'🐰', name:'Kaninchen',   correct:['Karotte'] },
+    { emoji:'🐢', name:'Schildkröte', correct:['Salat'] },
+    { emoji:'🐹', name:'Hamster',     correct:['Maiskörner'] },
+  ];
+
+  const FOODS = [
+    { key:'Knochen',    emoji:'🦴' },
+    { key:'Fisch',      emoji:'🐟' },
+    { key:'Maus',       emoji:'🐁' },
+    { key:'Karotte',    emoji:'🥕' },
+    { key:'Salat',      emoji:'🥬' },
+    { key:'Maiskörner', emoji:'🌽' },
+    { key:'Wurm',       emoji:'🪱' },
+    { key:'Körner',     emoji:'🌾' },
+  ];
+
+  const FOOD_MAP = Object.fromEntries(FOODS.map(f => [f.key, f.emoji]));
+  const TRAIN_ROUNDS = 3;
+
+  let mode = 'train';
+  let currentAnimal = null;
+  let weights = {};
+  let prevWeights = {};
+  let trainCounts = {};
+  let stats = { correct:0, wrong:0, rounds:0 };
+  let activeWeightTab = null;
+  let inputLocked = false;
+  let testPhase = 'user'; // 'user' | 'reveal'
+
+  ANIMALS.forEach(a => {
+    trainCounts[a.name] = 0;
+    weights[a.name] = {};
+    FOODS.forEach(f => {
+      weights[a.name][f.key] = 0.5 + (Math.random() * 0.1 - 0.05);
+    });
+  });
+
+  const $ = id => document.getElementById(id);
+
+  function init() {
+    buildProgressRow();
+    buildFoodGrid();
+    buildWeightTabs();
+    activeWeightTab = ANIMALS[0].name;
+    renderWeightTab();
+    pickAnimal();
+  }
+
+  function buildProgressRow() {
+    const row = $('progress-row');
+    row.innerHTML = '';
+    ANIMALS.forEach(a => {
+      const div = document.createElement('div');
+      div.className = 'animal-progress';
+      div.id = 'prog-' + a.name;
+      div.innerHTML = `<span class="ap-emoji">${a.emoji}</span><div class="ap-dots" id="dots-${a.name}"></div>`;
+      row.appendChild(div);
+      updateProgressDots(a.name);
+    });
+  }
+
+  function updateProgressDots(animalName) {
+    const container = $('dots-' + animalName);
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 0; i < TRAIN_ROUNDS; i++) {
+      const d = document.createElement('div');
+      d.className = 'ap-dot' + (i < trainCounts[animalName] ? ' filled' : '');
+      container.appendChild(d);
+    }
+    const prog = $('prog-' + animalName);
+    if (prog) prog.classList.toggle('trained', trainCounts[animalName] >= TRAIN_ROUNDS);
+  }
+
+  function buildFoodGrid() {
+    const grid = $('food-grid');
+    grid.innerHTML = '';
+    FOODS.forEach(f => {
+      const btn = document.createElement('button');
+      btn.className = 'food-btn';
+      btn.dataset.food = f.key;
+      btn.innerHTML = `<span class="food-emoji">${f.emoji}</span><span class="food-label">${f.key}</span>`;
+      btn.addEventListener('click', () => onFoodClick(f.key));
+      grid.appendChild(btn);
+    });
+  }
+
+  function buildWeightTabs() {
+    const tabs = $('weights-tabs');
+    tabs.innerHTML = '';
+    ANIMALS.forEach(a => {
+      const btn = document.createElement('button');
+      btn.className = 'wtab' + (a.name === activeWeightTab ? ' active' : '');
+      btn.textContent = a.emoji + ' ' + a.name;
+      btn.addEventListener('click', () => {
+        activeWeightTab = a.name;
+        document.querySelectorAll('.wtab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderWeightTab(null);
+      });
+      tabs.appendChild(btn);
+    });
+  }
+
+  function renderWeightTab(changedFood) {
+    const rows = $('weight-rows');
+    rows.innerHTML = '';
+    const w = weights[activeWeightTab];
+    const pw = prevWeights[activeWeightTab] || w;
+
+    const sorted = FOODS.slice().sort((a,b) => w[b.key] - w[a.key]);
+
+    sorted.forEach(f => {
+      const val  = w[f.key];
+      const prev = pw[f.key] !== undefined ? pw[f.key] : val;
+      const delta = val - prev;
+      const pct = Math.round(val * 100);
+
+      const levelClass = pct >= 65 ? 'high' : pct >= 40 ? 'medium' : 'low';
+      const changed = changedFood === f.key;
+
+      const row = document.createElement('div');
+      row.className = 'weight-row';
+
+      const deltaHTML = Math.abs(delta) > 0.001
+        ? `<span class="wr-delta ${delta>0?'up':'down'}">${delta>0?'▲':'▼'}${Math.abs(delta*100).toFixed(0)}%</span>`
+        : `<span class="wr-delta"></span>`;
+
+      row.innerHTML = `
+        <span class="wr-food">${f.emoji}</span>
+        <div class="wr-bar-bg">
+          <div class="wr-bar-fill ${levelClass}${changed?' changed':''}" style="width:${pct}%"></div>
+        </div>
+        <span class="wr-pct">${pct}%</span>
+        ${deltaHTML}
+      `;
+      rows.appendChild(row);
+    });
+  }
+
+  function pickAnimal() {
+    inputLocked = false;
+    $('test-result-row').style.display = 'none';
+    clearFoodHighlights();
+
+    if (mode === 'train') {
+      const available = ANIMALS.filter(a => trainCounts[a.name] < TRAIN_ROUNDS);
+      if (available.length === 0) {
+        $('phase-banner').classList.add('show');
+      }
+      // Auch nach dem Banner weitertrainieren — alle Tiere bleiben verfügbar
+      const pool = available.length > 0 ? available : ANIMALS;
+      currentAnimal = pool[Math.floor(Math.random() * pool.length)];
+      $('task-label').innerHTML = `Zeig der KI: Was frisst <strong>${currentAnimal.name}</strong>? <span class="mode-tag" id="mode-tag">Training</span>`;
+      showKiGuess();
+    } else {
+      testPhase = 'user';
+      currentAnimal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+      $('task-label').innerHTML = `Was glaubst <strong>du</strong> – was frisst ${currentAnimal.emoji} ${currentAnimal.name}? <span class="mode-tag test" id="mode-tag">Erprobung</span>`;
+      setBubble('Ich bin hungrig! Was esse ich? 🤔');
+    }
+
+    $('animal-emoji').textContent = currentAnimal.emoji;
+    $('animal-name').textContent  = currentAnimal.name;
+
+    activeWeightTab = currentAnimal.name;
+    document.querySelectorAll('.wtab').forEach(t => {
+      t.classList.toggle('active', t.textContent.includes(currentAnimal.name));
+    });
+    renderWeightTab(null);
+    updateStats();
+  }
+
+  function showKiGuess() {
+    const guess = getBestFood(currentAnimal.name);
+    setBubble(`Mein aktueller Tipp: <span class="ki-food">${FOOD_MAP[guess]}</span> ${guess} – zeig mir was richtig ist!`);
+    highlightFood(guess, 'ki-pick');
+  }
+
+  function onFoodClick(foodKey) {
+    if (inputLocked) return;
+
+    if (mode === 'train') {
+      doTrain(foodKey);
+    } else {
+      if (testPhase === 'user') {
+        doTestReveal(foodKey);
+      }
+    }
+  }
+
+  function doTrain(foodKey) {
+    inputLocked = true;
+    stats.rounds++;
+    if (trainCounts[currentAnimal.name] < TRAIN_ROUNDS) {
+      trainCounts[currentAnimal.name]++;
+    }
+    updateProgressDots(currentAnimal.name);
+
+    // Im Trainingsmodus IST der Nutzer der Lehrer.
+    // Was der Nutzer zeigt = was die KI lernen soll.
+    // Das Tier bewertet nicht — es bekommt Futter und freut sich immer.
+    const snapshot = { ...weights[currentAnimal.name] };
+
+    // KI lernt: gezeigtes Futter stark stärken, alle anderen schwächen
+    FOODS.forEach(f => {
+      if (f.key === foodKey) {
+        weights[currentAnimal.name][f.key] += 0.18;
+      } else {
+        weights[currentAnimal.name][f.key] -= 0.04;
+      }
+      weights[currentAnimal.name][f.key] = Math.max(0.02, Math.min(0.98, weights[currentAnimal.name][f.key]));
+    });
+
+    prevWeights[currentAnimal.name] = snapshot;
+
+    // Highlight: was gezeigt wurde
+    clearFoodHighlights();
+    highlightFood(foodKey, 'correct-pick');
+
+    // Tier freut sich immer — es bekommt ja Futter!
+    const animalEl = $('animal-emoji');
+    animalEl.classList.remove('happy', 'sad');
+    void animalEl.offsetWidth;
+    animalEl.classList.add('happy');
+
+    // Sprechblase: Tier nimmt das Futter dankbar an
+    setBubble(`<span class="correct-tag">Danke! 😊</span> Du zeigst mir: ${FOOD_MAP[foodKey]} ${foodKey}. Die KI lernt!`);
+
+    // Erklärung: Was hat die KI gelernt?
+    activeWeightTab = currentAnimal.name;
+    renderWeightTab(foodKey);
+
+    const deltaVal = (weights[currentAnimal.name][foodKey] - snapshot[foodKey] * 100).toFixed(0);
+    const newTop   = getBestFood(currentAnimal.name);
+    setExplain(
+      `Du hast der KI gezeigt: <span class="hl-green">${FOOD_MAP[foodKey]} ${foodKey}</span>. ` +
+      `Die KI stärkt diesen Balken um <span class="hl-green">+18%</span> und schwächt alle anderen. ` +
+      `Aktuell tippt sie auf: <span class="hl-purple">${FOOD_MAP[newTop]} ${newTop}</span>. ` +
+      (newTop === foodKey
+        ? `<span class="hl-green">Sie hat es gelernt! ✓</span>`
+        : `Noch ein paar Runden – sie lernt es!`)
+    );
+
+    setTimeout(() => pickAnimal(), 2000);
+  }
+
+  function doTestReveal(userChoice) {
+    inputLocked = true;
+    testPhase   = 'reveal';
+    stats.rounds++;
+
+    const kiGuess    = getBestFood(currentAnimal.name);
+    const userRight  = currentAnimal.correct.includes(userChoice);
+    const kiRight    = currentAnimal.correct.includes(kiGuess);
+
+    if (userRight) stats.correct++; else stats.wrong++;
+    updateStats();
+
+    clearFoodHighlights();
+    highlightFood(userChoice, userRight ? 'correct-pick' : 'wrong-pick');
+    highlightFood(kiGuess, 'ki-pick');
+    if (!userRight) currentAnimal.correct.forEach(c => highlightFood(c, 'correct-pick'));
+
+    const animalEl = $('animal-emoji');
+    animalEl.classList.remove('happy','sad');
+    void animalEl.offsetWidth;
+    animalEl.classList.add(kiRight ? 'happy' : 'sad');
+
+    // Sprechblase KI-Antwort
+    setBubble(
+      kiRight
+        ? `<span class="correct-tag">Ich wusste es! ✓</span> ${FOOD_MAP[kiGuess]} ${kiGuess}!`
+        : `<span class="wrong-tag">Ich lag falsch… ✗</span> Ich dachte ${FOOD_MAP[kiGuess]}, aber richtig ist ${currentAnimal.correct.map(c=>FOOD_MAP[c]).join('/')}!`
+    );
+
+    // Ergebnis-Chips
+    const resultRow = $('test-result-row');
+    resultRow.style.display = 'flex';
+    resultRow.innerHTML = `
+      <div class="result-chip user">Du: ${FOOD_MAP[userChoice]} ${userChoice}</div>
+      <div class="result-chip ${kiRight?'correct':'wrong'}">KI: ${FOOD_MAP[kiGuess]} ${kiGuess} ${kiRight?'✓':'✗'}</div>
+      <div class="result-chip correct">Richtig: ${currentAnimal.correct.map(c=>FOOD_MAP[c]+' '+c).join(' / ')}</div>
+    `;
+
+    setExplain(
+      `<span class="hl-purple">Erprobungsmodus:</span> Du hast ${FOOD_MAP[userChoice]} gewählt, ` +
+      `die KI tippte auf ${FOOD_MAP[kiGuess]}. ` +
+      (kiRight
+        ? `<span class="hl-green">Die KI hat richtig gelernt!</span> Sie erkennt jetzt zuverlässig, was ${currentAnimal.name} mag.`
+        : `<span class="hl-orange">Die KI lag noch falsch.</span> Sie braucht mehr Training für ${currentAnimal.name}.`)
+    );
+
+    setTimeout(() => pickAnimal(), 2800);
+  }
+
+  function getBestFood(animalName) {
+    return Object.entries(weights[animalName])
+      .sort((a,b) => b[1]-a[1])[0][0];
+  }
+
+  function highlightFood(foodKey, cls) {
+    document.querySelectorAll('.food-btn').forEach(btn => {
+      if (btn.dataset.food === foodKey) btn.classList.add(cls);
+    });
+  }
+
+  function clearFoodHighlights() {
+    document.querySelectorAll('.food-btn').forEach(btn => {
+      btn.classList.remove('ki-pick','correct-pick','wrong-pick','disabled');
+    });
+  }
+
+  function setBubble(html) {
+    $('bubble-text').innerHTML = html;
+  }
+
+  function setExplain(html) {
+    $('explain-box').innerHTML = html;
+  }
+
+  function updateStats() {
+    $('stat-correct').textContent = stats.correct;
+    $('stat-wrong').textContent   = stats.wrong;
+    $('stat-rounds').textContent  = stats.rounds;
+  }
+
+  // MODE BUTTONS
+  $('btn-train').addEventListener('click', () => {
+    mode = 'train';
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    $('btn-train').classList.add('active');
+    pickAnimal();
+  });
+  $('btn-test').addEventListener('click', () => {
+    mode = 'test';
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    $('btn-test').classList.add('active');
+    pickAnimal();
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
