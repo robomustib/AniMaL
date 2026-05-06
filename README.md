@@ -1,5 +1,5 @@
 # AniMaL
-### Animal-based Machine Learning — a hands-on ML teaching tool
+### AniMaL Machine Learning — a hands-on ML teaching tool
  
 AniMaL is a browser-based learning game that introduces children and young learners to the core concepts of machine learning through play. Learners take on the role of teacher: they show an AI which food each animal likes — and watch in real time as the system's internal weights shift in response.
  
@@ -59,8 +59,33 @@ Paste the contents of `animal-wordpress.html` into any HTML block in the Gutenbe
 ## Educational context
  
 AniMaL was developed as a didactic tool for technology and computer science education at secondary school level. It accompanies classroom instruction on artificial intelligence and machine learning, targeting learners with no prior programming experience.
- 
+
+## Demo
+Click here to try out:
+[AniMaL Demo](https://www.mustafa-bilgin.de/tierfuetterung)
 ---
  
 ## License
-CC.
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** License.
+Note: You are free to share and adapt the material for non-commercial purposes, provided you give appropriate credit. Commercial use is not permitted without prior consent. For details, see the [LICENSE](LICENSE) file.
+
+Copyright (c) 2026 Mustafa Bilgin
+
+## Citation
+
+If you use this software for your research, please cite it using the DOI:
+
+**APA Format (7th Ed.):**
+> Bilgin, M. (2026). *AniMaL Machine Learning — a hands-on ML teaching tool* (Version 2.0.0) [Computer software]. Zenodo. [https://doi.org/10.5281/zenodo.xxxx](https://doi.org/10.5281/zenodo.xxx)
+
+**BibTeX:**
+```bibtex
+@software{AniMaL,
+  author       = {Bilgin, Mustafa},
+  title        = {AniMaL Machine Learning — a hands-on ML teaching tool},
+  year         = {2026},
+  publisher    = {Zenodo},
+  version      = {2.0.0},
+  doi          = {10.5281/zenodo.xxxx},
+  url          = {https://doi.org/10.5281/zenodo.xxxx}  
