@@ -18,9 +18,9 @@ AniMaL makes three core ML concepts tangible without any math or prior knowledge
  
 ## How it works
  
-**Training Mode** — the learner is the teacher. An animal appears on screen and the learner picks what it should eat. The AI observes, updates its internal weights, and explains what it just learned. The animal always accepts the food happily — because in this phase, the learner defines what is correct.
+**Training Mode:** the learner is the teacher. An animal appears on screen and the learner picks what it should eat. The AI observes, updates its internal weights, and explains what it just learned. The animal always accepts the food happily — because in this phase, the learner defines what is correct.
  
-**Test Mode** — the AI makes its own predictions. The learner picks first, then sees whether the AI agrees. A side-by-side result shows what the learner chose, what the AI guessed, and what the correct answer is.
+**Test Mode:** the AI makes its own predictions. The learner picks first, then sees whether the AI agrees. A side-by-side result shows what the learner chose, what the AI guessed, and what the correct answer is.
  
 A live weight panel shows the shifting confidence scores for each animal–food pair after every interaction, making the learning process fully transparent.
  
